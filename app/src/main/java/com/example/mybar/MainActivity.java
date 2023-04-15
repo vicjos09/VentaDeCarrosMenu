@@ -1,8 +1,11 @@
 package com.example.mybar;
 
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 
+import com.example.mybar.db.Data;
+import com.example.mybar.db.DbHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -27,26 +30,43 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
     private ArrayList<Carro> listaCar=new ArrayList<>();
     int flag=-1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        DbHelper dbHelper=new DbHelper(MainActivity.this);
+        SQLiteDatabase es= dbHelper.getWritableDatabase();
+        dbHelper.onUpgrade(es,1,2);
+
+        dbHelper.insertData(new Data("1","Ford","Corvette","2019","8","70000","1"));
+        dbHelper.insertData(new Data("2","Audi","RS5","2023","6","500000","2"));
+        dbHelper.insertData(new Data("3","Mercedes","AMG","2018","8","60000","3"));
+        dbHelper.insertData(new Data("4","BMW","M3","2022","6","400000","4"));
+        dbHelper.insertData(new Data("5","Lamborghini","aventador","2011","4","300000","5"));
+
+        if (es!=null){
+            Log.i("DATABASE___________________________________", "Insertada");
+        }else {
+            Log.i("DATABASE", "No creada");
+        }
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        listaCar.add(new Carro("1","Ford","Corvette","2019","8","70000","1"));
-        listaCar.add(new Carro("2","Audi","RS5","2023","6","500000","2"));
-        listaCar.add(new Carro("3","Mercedes","AMG","2018","8","60000","3"));
-        listaCar.add(new Carro("4","BMW","M3","2022","6","400000","4"));
-        listaCar.add(new Carro("5","Lamborghini","aventador","2011","4","300000","5"));
+        listaCar.add(dbHelper.searchCar("1")) ;
+        listaCar.add(dbHelper.searchCar("2")) ;
+        listaCar.add(dbHelper.searchCar("3")) ;
+        listaCar.add(dbHelper.searchCar("4")) ;
+        listaCar.add(dbHelper.searchCar("5")) ;
+
+        Log.i(" DATABASE________Cilindros_____________ "+listaCar.get(1).getNumberOfCylinder(), "Data1");
 
         AdaptadorC adaptador = new AdaptadorC(this);
         ListView lv1 = findViewById(R.id.list1);
         lv1.setAdapter(adaptador);
         lv1.setAdapter(adaptador);
-
-
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -59,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
         lv1.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
                 Toast.makeText(MainActivity.this,listaCar.get(i).getName(), Toast.LENGTH_LONG).show();
                 flag=i;
 
@@ -80,18 +101,25 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.locaciones:
+
                    Toast.makeText(MainActivity.this,"Open Google Maps", Toast.LENGTH_LONG).show();
+                   return true;
+
             case R.id.action_settings:
+
                 if (flag==-1){
+
                     Toast.makeText(MainActivity.this,"Selecciona un Carro", Toast.LENGTH_LONG).show();
+
                 }else {
+
                     Log.i("ActionBar", "D");
                     Intent intent = new Intent(MainActivity.this, Especifica.class);
                     intent.putExtra("Key", listaCar.get(flag).getCarID());
                     intent.putExtra("name", listaCar.get(flag).getName());
                     intent.putExtra("brand", listaCar.get(flag).getBrand());
                     intent.putExtra("model", listaCar.get(flag).getModel());
-                    intent.putExtra("numberCil", listaCar.get(flag).getModel());
+                    intent.putExtra("numberCil", listaCar.get(flag).getNumberOfCylinder());
                     intent.putExtra("price", listaCar.get(flag).getPrice());
                     intent.putExtra("class", this.getClass());
                     //We create the information to pass between activities
@@ -104,15 +132,16 @@ public class MainActivity extends AppCompatActivity {
                     b.putString("model", listaCar.get(flag).getModel());
                     b.putString("numberCil", listaCar.get(flag).getNumberOfCylinder());
                     b.putString("price", listaCar.get(flag).getPrice());
-
-
                     //We add the information to the intent
                     intent.putExtras(b);
                     startActivity(intent);
+
                 }
 
                 return true;
+
             default:
+
                 return super.onOptionsItemSelected(item);
         }
     }
@@ -139,15 +168,25 @@ public class MainActivity extends AppCompatActivity {
             name.setText("ID: "+listaCar.get(position).getCarID());
 
             ImageView imageView1 = item.findViewById(R.id.imageView);
+
             if (listaCar.get(position).getName().equals("Corvette"))
+
                 imageView1.setImageResource(R.mipmap.carro1);
+
             if (listaCar.get(position).getName().equals("RS5"))
+
                 imageView1.setImageResource(R.mipmap.audi);
+
             if (listaCar.get(position).getName().equals("AMG"))
+
                 imageView1.setImageResource(R.mipmap.amg);
+
             if (listaCar.get(position).getName().equals("M3"))
+
                 imageView1.setImageResource(R.mipmap.mtres);
+
             if (listaCar.get(position).getName().equals("aventador"))
+
                 imageView1.setImageResource(R.mipmap.lambo);
 
             return(item);

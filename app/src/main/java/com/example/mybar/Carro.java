@@ -18,6 +18,9 @@ public class Carro {
         this.price = price;
         this.image = image;
     }
+    public Carro(){
+
+    }
 
     public String getCarID() {
         return carID;
@@ -64,7 +67,7 @@ public class Carro {
     }
 
     public void setNumberOfCylinder(String numberOfCylinder) {
-        numberOfCylinder = numberOfCylinder;
+        this.numberOfCylinder = numberOfCylinder;
     }
 
     public void setPrice(String price) {
